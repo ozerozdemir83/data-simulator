@@ -1,0 +1,50 @@
+include:
+  # Changelog & Release Pipeline requires stages [version, release], variables [ GL_TOKEN ]
+  # https://code.siemens.com/gemini/support/gitlab-releases-ci-template
+  - project: 'gemini/support/gitlab-releases-ci-template'
+    ref: 'v1.0.1'
+    file: '/templates/changelog.and.releases.yml'
+  - project: 'gemini/support/java-microservice-ci-template'
+    ref: 'v4.0.59'
+    file: '/templates/java.base.yml'
+
+variables:
+  CHART_NAME: data-simulatoe
+  APP_NAME: "$CHART_NAME-app"
+  # MAVEN_DOCKER_IMAGE: "$CI_REGISTRY/gemini/support/docker/adoptium-docker-image/openjdk-17-debian:v0.2.70"
+  # MVN_MICROSERVICE_SRC is relative path to src folder which contains pom.xml
+  MVN_MICROSERVICE_SRC: .,data-simulator-app
+  # MVN_INTEGRATION_TEST_SRC is relative path to integration tests folder which contains pom.xml
+  MVN_INTEGRATION_TEST_SRC: data-simulator-it
+  # CHART_PATH is relative path to helm charts
+  CHART_PATH: deployment/helm
+
+  # KANIKO_DOCKERFILE_PATHS is relative path to docker file in repository
+  # EXAMPLE - KANIKO_DOCKERFILE_PATHS: "tests/Dockerfile1,tests/Dockerfile2,tests/Dockerfile3"
+  KANIKO_DOCKERFILE_PATHS: "deployment/Microservice.Dockerfile"
+
+  # KANIKO_DOCKERFILE_IMAGE_MAPPINGS is used to define how the images must be named in container registry
+  # EXAMPLE - KANIKO_DOCKERFILE_IMAGE_MAPPINGS: "Dockerfile1=<image-name-1>,Dockerfile2=<image-name-2>,Dockerfile3=<image-name-3>"
+  KANIKO_DOCKERFILE_IMAGE_MAPPINGS: "Microservice.Dockerfile=data-simulator"
+
+  # CRITICAL_THRESHOLD define at which threshold trivy test fails, default are MAJOR
+  CRITICAL_THRESHOLD: "CRITICAL"
+  # GSG_BUMP_COMMIT_TMPL is used to define name for CHANGELOG commit by gitlab ci releases pipeline. Use following name so that automated pipeline run is triggered after commit
+  GSG_BUMP_COMMIT_TMPL: "chore: version bump for {{tag}}"
+  # NAMESPACES THAT IS USED FOR MICROSERVICE DEPLOYMENT
+  NAMESPACE: ${CI_PROJECT_NAME}-${CI_COMMIT_REF_SLUG}
+  TEST_DEPLOYMENT_FOLDER: "deployment-integration-test"
+
+stages:
+  - version
+  - prepare
+  - build
+  - build:post
+  - test
+  - kaniko:cr
+  - helm
+  - code-quality-check
+  - oss:capycli
+  - release:pre
+  - release
+  - it
