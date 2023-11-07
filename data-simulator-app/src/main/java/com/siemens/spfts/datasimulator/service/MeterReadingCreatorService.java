@@ -26,6 +26,7 @@ public class MeterReadingCreatorService {
     private final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(timeFormat)
             .withZone(ZoneId.from(ZoneOffset.UTC));
     public List<MeterReadingDto> createMeterReadingMessageForSdp(List<SdpAnalogDto> sdpAnalogDtoList) {
+        long minusMinutes = 0;
         List<MeterReadingDto> meterReadings= new ArrayList<>();
         int index=0;
         MeterReadingDto meterReadingDto=null;
@@ -37,14 +38,15 @@ public class MeterReadingCreatorService {
             intervalBlock = IntervalBlock.builder().readingType(sdpAnalogDto.getReadingType()).
                     intervalReadingList(new ArrayList<>()).build();
             for (int i = 0; i < Constants.MESSAGE_NUMBER; i++) {
-                String startTime = dateTimeFormatter.format(ZonedDateTime.ofInstant(Instant.now(), ZoneOffset.UTC));
+                ZonedDateTime dateTime=ZonedDateTime.ofInstant(Instant.now(), ZoneOffset.UTC).minusMinutes(minusMinutes);
+                String startTime = dateTimeFormatter.format(dateTime);
                 Double measurementValue = Math.floor(Math.random() * 10) + 0.20;
                 IntervalReading intervalReading = IntervalReading.builder().endTime(startTime).value(measurementValue).source("MDM").build();
                 intervalBlock.getIntervalReadingList().add(intervalReading);
                 index++;
+                minusMinutes=minusMinutes+1;
                 if (index == sdpAnalogDtoList.size()) {
                     index = 0;
-
                 }
             }
             intervalBlockList.add(intervalBlock);
