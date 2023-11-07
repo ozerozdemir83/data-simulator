@@ -18,7 +18,7 @@ public class MeterReadingCreatorService {
     /**
      * time format of performance test data
      */
-    private final String timeFormat = "yyyy-MM-dd HH:mm:ss.SSSSSS'Z'";
+    private final String timeFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
 
     /**
      * date formatter of performance test data
@@ -40,7 +40,7 @@ public class MeterReadingCreatorService {
             for (int i = 0; i < Constants.MESSAGE_NUMBER; i++) {
                 ZonedDateTime dateTime=ZonedDateTime.ofInstant(Instant.now(), ZoneOffset.UTC).minusMinutes(minusMinutes);
                 String startTime = dateTimeFormatter.format(dateTime);
-                Double measurementValue = Math.floor(Math.random() * 10) + 0.20;
+                Double measurementValue = Math.floor(Math.random() * 100);
                 IntervalReading intervalReading = IntervalReading.builder().endTime(startTime).value(measurementValue).source("MDM").build();
                 intervalBlock.getIntervalReadingList().add(intervalReading);
                 index++;
