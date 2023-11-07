@@ -18,7 +18,7 @@ public class MeterReadingCreatorService {
     /**
      * time format of performance test data
      */
-    private final String timeFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
+    private final String timeFormat = "yyyy-MM-dd'T'HH:mm:ss.SS'Z'";
 
     /**
      * date formatter of performance test data
